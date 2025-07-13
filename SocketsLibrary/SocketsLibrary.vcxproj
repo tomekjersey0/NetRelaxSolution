@@ -174,7 +174,7 @@
     <ClInclude Include="include\Program.h" />
     <ClInclude Include="include\Server.h" />
     <ClInclude Include="include\SocketBase.h" />
-    <ClInclude Include="include\Socketslibrary.h" />
+    <ClInclude Include="include\SocketsLibrary.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

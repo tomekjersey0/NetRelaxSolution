@@ -21,7 +21,7 @@
     <ClInclude Include="include\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Socketslibrary.h">
+    <ClInclude Include="include\SocketsLibrary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\NetSocket.h">
