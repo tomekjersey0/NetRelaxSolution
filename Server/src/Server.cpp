@@ -240,9 +240,13 @@ std::string App::Server::ClientData::Recv() const {
 	std::string buffer(kRecvBufferSize, '\0');
 	int bytes = sock.Recv(&buffer[0], buffer.size());
 
-	if (bytes <= 0) {
-		// connection closed or error
+	if (bytes < 0) {
+		// -1 means error
 		Net::Error(Net::GetError::getLastErrorFullMessage());
+		return "";
+	}
+	else if (bytes == 0) {
+		// disonnected
 		return "";
 	}
 
