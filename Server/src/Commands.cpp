@@ -2,6 +2,7 @@
 #include "Util.h"
 
 #include <sstream>
+#include <memory>
 
 void App::Server::helpHandler(std::shared_ptr<ClientData> client, const std::vector<std::string>& args) {
 	std::vector<std::string> full(commandsList.size());
