@@ -21,7 +21,7 @@ int Net::ListenerSocket::Bind(const char* ip, uint16_t port) {
 		std::string msg = "Invalid ip address passed to inet_pton: " + std::string(ip);
 		throw std::runtime_error(msg);
 	}
-	if (result == -1) {
+	else /* result == -1 */ {
 		std::cout << Net::GetError::getLastErrorFullMessage() << std::endl;
 		throw std::runtime_error("Something went wrong in inet_pton");
 	}
@@ -29,7 +29,7 @@ int Net::ListenerSocket::Bind(const char* ip, uint16_t port) {
 
 std::optional<Net::ConnectedSocket> Net::ListenerSocket::Accept() const {
 	ConnectedSocket client;
-	int addr_len = sizeof(client.connection.addr);
+	socklen addr_len = sizeof(client.connection.addr);
 
 	client.connection.socket = accept(s.socket, reinterpret_cast<sockaddr*>(&client.connection.addr), &addr_len);
 	if (client.connection.socket == Net::INVALID_SOCKET_VALUE) {
