@@ -4,6 +4,7 @@
 #include "Program.h"
 
 #include <optional>
+#include <atomic>
 
 namespace Net {
     class Server
