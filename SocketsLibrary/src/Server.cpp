@@ -26,7 +26,6 @@ void Net::Server::Start(const uint16_t port) {
 	Start(defaultIp, port);
 }
 
-// used defined port and ip for starting of server
 void Net::Server::Start(const char* ip, uint16_t port) {
 	running = true;
 

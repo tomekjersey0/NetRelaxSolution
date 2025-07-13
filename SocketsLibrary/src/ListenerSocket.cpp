@@ -1,13 +1,14 @@
 #include "pch.h"
 
 #include "ListenerSocket.h"
+#include "GetError.h"
 
 
-int Net::ListenerSocket::Listen(int backlog) const {
+int Net::ListenerSocket::Listen(int backlog) {
 	return listen(s.socket, backlog);
 }
 
-int Net::ListenerSocket::Bind(const char* ip, uint16_t port) const {
+int Net::ListenerSocket::Bind(const char* ip, uint16_t port) {
 	sockaddr_in addr{};
 	addr.sin_port = htons(port);
 	addr.sin_family = AF_INET;

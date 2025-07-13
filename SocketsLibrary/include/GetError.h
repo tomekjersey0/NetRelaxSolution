@@ -3,6 +3,7 @@
 #include "NetSocket.h"
 
 #include <string>
+#include <cstring>
 #include <map>
 
 namespace Net {

@@ -12,12 +12,8 @@ namespace Net {
 	public:
 		SocketHandle s;
 
-		ListenerSocket() {
-			s = SocketHandle();
-		}
-
-		int Bind(const char* ip, uint16_t port) const;
-		int Listen(int backlog) const;
+		int Bind(const char* ip, uint16_t port);
+		int Listen(int backlog);
 		std::optional<ConnectedSocket> Accept() const;
 
 	};

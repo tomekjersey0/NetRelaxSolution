@@ -100,8 +100,8 @@ void App::Server::clientCleanupThreadHandler() {
 		std::lock_guard<std::mutex> lock(clientThreadsMutex);
 		for (auto& thread : clientThreads) {
 			if (thread.thread.joinable()) {
-				thread.thread.join();
 				thread.finished = true;
+				thread.thread.join();
 			}
 		}
 

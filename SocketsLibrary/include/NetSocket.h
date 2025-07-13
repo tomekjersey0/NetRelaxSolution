@@ -16,6 +16,7 @@
 #endif
 
 #include <iostream>
+#include <string>
 
 namespace Net
 {
@@ -56,6 +57,14 @@ namespace Net
     constexpr int SOCKET_ERROR_INTR = EINTR;
 #endif
 
+    inline int CloseSocket(socket_t socket) {
+#ifdef _WIN32
+        return closesocket(socket);
+#else
+        return close(socket);
+#endif
+    }
+
     /* --- Startup and Cleanup --- */
     inline int startup()
     {
@@ -80,15 +89,15 @@ namespace Net
 #ifdef _WIN32
         Sleep(ms);
 #else
-        sleep(ms);
+        usleep(ms);
 #endif
     }
 
     inline void Info(const std::string& msg) {
-        std::cout << "[INFO] " << msg << std::endl;
+        std::cerr << "[INFO] " << msg << std::endl;
     };
     inline void Error(const std::string& msg) {
-        std::cout << "[ERROR] " << msg << std::endl;
+        std::cerr << "[ERROR] " << msg << std::endl;
     };
 
 }

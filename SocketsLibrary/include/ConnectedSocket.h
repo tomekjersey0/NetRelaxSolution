@@ -22,11 +22,11 @@ namespace Net {
 
         ConnectedSocket& operator=(ConnectedSocket&& other) noexcept {
             if (this != &other) {
-                // Close this->connection if valid
-                // Move other's connection
+                connection.CloseSocket();
                 connection = std::move(other.connection);
                 other.connection.socket = INVALID_SOCKET_VALUE;
             }
+
             return *this;
         }
 

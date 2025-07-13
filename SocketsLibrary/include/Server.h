@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ListenerSocket.h"
+#include "Program.h"
 
 #include <optional>
 
@@ -15,12 +16,6 @@ namespace Net {
         Program program;
         ListenerSocket listener;
 
-    public:
-        struct ClientSocket {
-            socket_t socket;
-            sockaddr_in addr;
-        };
-
         int Listen() {
             return listener.Listen(SOMAXCONN);
         }
@@ -28,6 +23,12 @@ namespace Net {
         int Bind(const char* ip, uint16_t port) {
             return listener.Bind(ip, port);
         }
+
+    public:
+        struct ClientSocket {
+            socket_t socket;
+            sockaddr_in addr;
+        };
 
         std::optional<ConnectedSocket> Accept() {
             return listener.Accept();
