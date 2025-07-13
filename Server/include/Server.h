@@ -11,6 +11,9 @@ namespace App
 {
 	class Server {
 	private:
+		const char* defaultIp = "127.0.0.1";
+		const uint16_t defaultPort = 55555;
+
 		static inline std::mutex clientMutex;
 		static inline std::mutex clientThreadsMutex;
 
@@ -102,5 +105,8 @@ namespace App
 		~Server();
 		// Run the server, accepting clients and handling them
 		void Run();
+		void Run(const char* ip);
+		void Run(uint16_t port);
+		void Run(const char* ip, uint16_t port);
 	};
 }

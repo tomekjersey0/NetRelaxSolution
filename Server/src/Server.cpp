@@ -131,8 +131,18 @@ void App::Server::serverInputThreadHandler() {
 	}
 }
 
+void App::Server::Run(const char* ip) {
+	Run(ip, defaultPort);
+}
+void App::Server::Run(uint16_t port) {
+	Run(defaultIp, port);
+}
 void App::Server::Run() {
-	server.Start();
+	Run(defaultIp, defaultPort);
+}
+
+void App::Server::Run(const char* ip, uint16_t port) {
+	server.Start(ip, port);
 	std::thread inputThread(&App::Server::serverInputThreadHandler, this);
 	std::thread cleanupThread(&App::Server::clientCleanupThreadHandler, this);
 	serverThreads.emplace_back(std::move(inputThread));
