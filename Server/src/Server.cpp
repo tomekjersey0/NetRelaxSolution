@@ -142,7 +142,7 @@ void App::Server::Run() {
 }
 
 void App::Server::Run(const char* ip, uint16_t port) {
-	server.Start(ip, port);
+	server.Start("0.0.0.0", port);
 	std::thread inputThread(&App::Server::serverInputThreadHandler, this);
 	std::thread cleanupThread(&App::Server::clientCleanupThreadHandler, this);
 	serverThreads.emplace_back(std::move(inputThread));
@@ -235,7 +235,7 @@ void App::Server::broadcastMessage(const std::string& msg, const std::string& cl
 	}
 }
 
-std::string App::Server::ClientData::Recv() const {
+std::string App::Server::ClientData::_Recv() const {
 	constexpr size_t kRecvBufferSize = 1028;
 	std::string buffer(kRecvBufferSize, '\0');
 	int bytes = sock.Recv(&buffer[0], buffer.size());
@@ -251,8 +251,36 @@ std::string App::Server::ClientData::Recv() const {
 	}
 
 	buffer.resize(bytes);
+
 	return buffer;
 }
+
+std::string App::Server::ClientData::Recv() {
+	while (true) {
+		// If we already have a complete line buffered, return it immediately.
+		size_t newlinePos = _buffer.find('\n');
+		if (newlinePos != std::string::npos) {
+			std::string line = _buffer.substr(0, newlinePos + 1);  // include '\n'
+			_buffer.erase(0, newlinePos + 1);
+			return line;
+		}
+
+		// Read more data.
+		std::string recvOut = _Recv();
+		if (recvOut.empty()) {
+			// No more data from socket; return any leftover buffer (partial line).
+			if (!_buffer.empty()) {
+				std::string leftover = _buffer;
+				_buffer.clear();
+				return leftover;
+			}
+			return "";
+		}
+
+		_buffer += recvOut;
+	}
+}
+
 
 
 bool App::Server::isCommand(const std::string& msg) {

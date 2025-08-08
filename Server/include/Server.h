@@ -49,8 +49,10 @@ namespace App
 			bool SendLine(const std::string& msg) const;
 			bool SendTo(const std::string& msg, const std::string& username) const;
 			bool SendLineTo(const std::string& msg, const std::string& username) const;
-			std::string Recv() const;
+			std::string _Recv() const;
+			std::string Recv();
 
+			std::string _buffer;
 		};
 		void broadcastMessage(const std::string& msg, const std::string& clientUsername);
 
