@@ -53,21 +53,35 @@ void App::Server::requestHandler(std::shared_ptr<ClientData> client, const std::
 		client->SendLine("Invalid syntax. Missing username specifier.");
 		return;
 	}
+	
 	std::string target = args[0];
 	if (target == client->username) {
 		client->SendLine("Invalid argument. Can't request to chat with yourself, sorry.");
 		return;
 	}
-
+	
+	// send request
 	{
 		std::lock_guard<std::mutex> lock(clientMutex);
 		if (clients.find(target) != clients.end()) {
+			if (clients.find(client->pending_request_to) != clients.end()) {
+				if (target != client->pending_request_to) {
+					std::ostringstream iss;
+					iss << "[SERVER] '" << client->username << "' has cancelled their chat request with you.";
+					clients[client->pending_request_to]->SendLine(iss.str());
+				}
+			}
+
 			client->SendLine("Sent chat request to: " + target);
 			client->pending_request_to = target;
 
 			std::ostringstream iss;
-			iss << client->username << " has requested to chat with you. /accept " << client->username << "to accept.";
+			iss << "[SERVER] '" << client->username << "' has requested to chat with you. \n[SERVER] /accept " << client->username << " to connect.";
 			clients[target]->SendLine(iss.str());
+
+		}
+		else {
+			client->SendLine("User: " + target + " does not exist.");
 		}
 	}
 }

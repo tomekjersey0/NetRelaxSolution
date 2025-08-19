@@ -51,7 +51,7 @@ void App::Server::clientThreadHandler(std::shared_ptr<ClientData> client) {
 
 	/* Register User with a new Username */
 	bool usernameTaken = false;
-	while ((client->username == "" || usernameTaken) && clientConnected) {
+	while ((client->username.empty() || usernameTaken) && clientConnected) {
 		if (!client->SendLine("Enter your username:")) {
 			clientConnected = false;
 			break;
@@ -67,7 +67,6 @@ void App::Server::clientThreadHandler(std::shared_ptr<ClientData> client) {
 
 		std::lock_guard<std::mutex> lock(clientMutex);
 		if (clients.find(client->username) == clients.end()) {
-			client->username = client->username;
 			clients[client->username] = client;
 			usernameTaken = false;
 			Net::Info("User: '" + client->username + "' registered");
@@ -85,36 +84,56 @@ void App::Server::clientThreadHandler(std::shared_ptr<ClientData> client) {
 		clientLoop(client);
 	}
 
-	// remove client from clients vector
-	Net::Info("Client disconnected: "+ client->username);
-	std::lock_guard<std::mutex> lock(clientMutex);
-	if (clients.find(client->username) != clients.end()) {
-		Net::Info("Removed user: '" + client->username + "'");
-		clients.erase(client->username);
+	// Remove client from clients map
+	Net::Info("Client disconnected: " + client->username);
+	{
+		std::lock_guard<std::mutex> lock(clientMutex);
+		if (clients.find(client->username) != clients.end()) {
+			Net::Info("Removed user: '" + client->username + "'");
+			clients.erase(client->username);
+		}
+	}
+
+	// Signal that this thread has finished
+	{
+		std::lock_guard<std::mutex> lock(clientThreadsMutex);
+		for (auto& thread : clientThreads) {
+			if (thread.thread.get_id() == std::this_thread::get_id()) {
+				thread.finished = true;
+				break;
+			}
+		}
 	}
 }
 
 void App::Server::clientCleanupThreadHandler() {
 	while (server.isRunning()) {
 		Net::sleep_ms(5000);
-		std::lock_guard<std::mutex> lock(clientThreadsMutex);
-		for (auto& thread : clientThreads) {
-			if (thread.thread.joinable()) {
-				thread.finished = true;
-				thread.thread.join();
+
+		std::vector<std::thread> threadsToJoin;
+
+		{
+			std::lock_guard<std::mutex> lock(clientThreadsMutex);
+			for (auto it = clientThreads.begin(); it != clientThreads.end(); ) {
+				if (it->finished) {
+					if (it->thread.joinable()) {
+						threadsToJoin.push_back(std::move(it->thread));
+					}
+					it = clientThreads.erase(it);
+				}
+				else {
+					++it;
+				}
 			}
 		}
 
-		for (auto it = clientThreads.begin(); it != clientThreads.end(); ) {
-			if (it->finished) {
-				it = clientThreads.erase(it);
-			}
-			else {
-				++it;
-			}
+		// Join outside of lock
+		for (auto& t : threadsToJoin) {
+			t.join();
 		}
 	}
 }
+
 
 void App::Server::serverInputThreadHandler() {
 	std::string str;
@@ -142,10 +161,10 @@ void App::Server::Run() {
 }
 
 void App::Server::Run(const char* ip, uint16_t port) {
-	server.Start("0.0.0.0", port);
+	server.Start("127.0.0.1", port);
 	std::thread inputThread(&App::Server::serverInputThreadHandler, this);
 	std::thread cleanupThread(&App::Server::clientCleanupThreadHandler, this);
-	serverThreads.emplace_back(std::move(inputThread));
+	serverThreads.push_back(std::move(inputThread));
 	serverThreads.push_back(std::move(cleanupThread));
 	while (server.isRunning()) {
 		auto _clientSocket = server.Accept();
