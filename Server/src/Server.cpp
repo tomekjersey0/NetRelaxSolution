@@ -161,7 +161,7 @@ void App::Server::Run() {
 }
 
 void App::Server::Run(const char* ip, uint16_t port) {
-	server.Start("127.0.0.1", port);
+	server.Start(ip, port);
 	std::thread inputThread(&App::Server::serverInputThreadHandler, this);
 	std::thread cleanupThread(&App::Server::clientCleanupThreadHandler, this);
 	serverThreads.push_back(std::move(inputThread));
