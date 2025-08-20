@@ -197,6 +197,8 @@ void App::Server::Run(const char* ip, uint16_t port) {
 }
 
 void App::Server::joinAllThreads() {
+	Net::Info("JOINING THREADS");
+
 	for (auto& thread : clientThreads) {
 		if (thread.thread.joinable()) {
 			thread.thread.join();
