@@ -172,6 +172,7 @@ void App::Server::Run(const char* ip, uint16_t port) {
 			 _clientSocket = server.Accept();
 		}
 		catch (std::runtime_error) {
+			Net::Error("Stopping Server, critical accept failure");
 			server.Stop();
 		}
 		// stop new clients from being 'onboarded' if they joined here and the server is stopped
