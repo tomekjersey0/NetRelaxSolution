@@ -167,7 +167,13 @@ void App::Server::Run(const char* ip, uint16_t port) {
 	serverThreads.push_back(std::move(inputThread));
 	serverThreads.push_back(std::move(cleanupThread));
 	while (server.isRunning()) {
-		auto _clientSocket = server.Accept();
+		std::optional<Net::ConnectedSocket> _clientSocket;
+		try {
+			 _clientSocket = server.Accept();
+		}
+		catch (std::runtime_error) {
+			server.Stop();
+		}
 		// stop new clients from being 'onboarded' if they joined here and the server is stopped
 		if (!server.isRunning()) break;
 		if (_clientSocket) {
